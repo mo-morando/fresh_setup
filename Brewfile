@@ -1,4 +1,3 @@
-tap "homebrew/cask-fonts"
 brew "bat"
 brew "bfg"
 brew "blast"
