@@ -1,0 +1,110 @@
+name: rnaseq_workflow
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  # Core R and Python
+  - r-base
+  - r-essentials
+  - python
+  
+  # Bioconductor core
+  - r-biocmanager
+  
+  # Quality control and preprocessing
+  - multiqc
+  - r-fastqcr
+  - bioconductor-shortread
+  - trim-galore
+  
+  # Alignment and quantification tools
+  - bioconductor-rsubread
+  - salmon
+  - kallisto
+  - star
+  - samtools
+  - bioconductor-rsamtools
+  
+  # Expression analysis packages
+  - bioconductor-tximport
+  - bioconductor-tximeta
+  - bioconductor-edger
+  - bioconductor-limma
+  - bioconductor-deseq2
+  - r-ashr
+  - bioconductor-summarizedexperiment
+  
+  # Annotation resources
+  - bioconductor-annotationdbi
+  - bioconductor-org.hs.eg.db
+  - bioconductor-org.mm.eg.db
+  - bioconductor-go.db
+  - bioconductor-genomicfeatures
+  - bioconductor-rtracklayer
+  - bioconductor-biomart
+  - bioconductor-bsgenome
+  - bioconductor-genomeinfodb
+  
+  # Functional enrichment analysis
+  - bioconductor-clusterprofiler
+  - bioconductor-pathview
+  - bioconductor-dose
+  - bioconductor-fgsea
+  - bioconductor-enrichplot
+  
+  # Visualization packages
+  - r-ggplot2
+  - r-gplots
+  - r-pheatmap
+  - r-ggrepel
+  - bioconductor-complexheatmap
+  - bioconductor-glimma
+  - bioconductor-enhancedvolcano
+  - r-plotly
+  - r-dt
+  
+  # Data handling and manipulation
+  - r-dplyr
+  - r-tidyr
+  - r-readr
+  - r-stringr
+  - r-tibble
+  - r-openxlsx
+  
+  # Reproducibility and reporting
+  - r-knitr
+  - r-rmarkdown
+  - r-reticulate
+  - r-bookdown
+  
+  # Statistical and computational utilities
+  - bioconductor-ihw
+  - r-rlang
+  - r-future
+  - bioconductor-biocparallel
+  - r-scales
+  
+  # Project specific
+  # Drosophilla
+  - bioconductor-pasillabamsubset
+  - bioconductor-txdb.dmelanogaster.ucsc.dm3.ensgene
+  - bioconductor-org.dm.eg.db
+
+  # Systems dependencies
+  - libxml2
+  - libcurl
+  - openssl
+  - pandoc
+  # - gcc
+  - gfortran
+  - make
+  
+  # Python packages for potential integrations
+  - pip
+  - pip:
+    - rpy2
+    - pandas
+    - numpy
+    - matplotlib
+    - seaborn

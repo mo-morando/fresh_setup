@@ -1,0 +1,15 @@
+name: renv_r_stats_course
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-base
+  - r-tidyverse
+  - r-patchwork
+  - r-languageserver
+  - r-rmarkdown
+  - r-httpgd
+  - radian
+  - python
+  - pandas
+  - numpy

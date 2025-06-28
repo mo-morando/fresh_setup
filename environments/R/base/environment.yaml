@@ -1,0 +1,14 @@
+name: renv
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-base
+  - r-tidyverse
+  - r-patchwork
+  - r-roxygen2
+  - r-languageserver
+  - r-rmarkdown
+  - r-httpgd
+  - radian
+  - snakemake

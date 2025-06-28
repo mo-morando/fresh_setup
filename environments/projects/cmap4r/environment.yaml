@@ -1,0 +1,14 @@
+name: cmap4r
+channels:
+  - conda-forge
+dependencies:
+  - r-base
+  - r-devtools
+  - r-tidyverse
+  - r-keyring
+  - r-sf
+  - r-mapview
+  - r-languageserver
+  - r-rmarkdown
+  - r-httpgd
+  - radian
