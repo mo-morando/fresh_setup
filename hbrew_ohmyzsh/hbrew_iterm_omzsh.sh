@@ -96,13 +96,11 @@ print_error() {
     log "ERROR" "$1" "${RED}"
 }
 
-# Error handling function
 error_exit() {
-    local err_code=${1:-$?}
-    local message="${2:-Script failed}"
+    local err_code=${1:-1} message="${2:-Script failed}"
     print_error "${message}"
-    echo -e "${RED}Error code: ${err_code}${NC}" >&2
-    # exit "$err_code" #FIXME: Remove this after script is working
+    echo -e "${RED}Error code: ${err_code}${NC}" | tee -a "$LOG_FILE"
+    exit "$err_code"
 }
 
 # Final print message
@@ -159,8 +157,8 @@ EOF
 # }
 
 # Utility functions
-command_exists() {
-    print_status "Checking if command '${1}' exists..."
+exists() {
+    print_status "Checking if '${1}' exists..."
     command -v "${1}" &>/dev/null
 }
 
@@ -218,7 +216,7 @@ check_macos() {
 
 # Download Homebrew if not installed
 install_addpath_hbrew() {
-    if ! command_exists brew; then
+    if ! exists brew; then
         print_status "Homebrew is not installed. Installing Homebrew..."
         retry 3 5 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || error_exit 2 "Homebrew download failed"
 
@@ -318,7 +316,7 @@ install_zsh_plugin() {
 # Verify installations
 verify_installs() {
     print_status "Verifying installation…"
-    command_exists brew || error_exit 8 "Homebrew missing"
+    exists brew || error_exit 8 "Homebrew missing"
     dir_exists "$HOME/.oh-my-zsh" || error_exit 8 "Oh-My-Zsh missing"
     dir_exists "${Z_CUST}${PWLV10k_THMS}" || error_exit 8 "Powerlevel10k theme missing"
     print_status "✔ All components verified – enjoy! ✨"
@@ -341,7 +339,7 @@ while (("$#" > 0)); do
         shift 2
         ;;
     -h | --help)
-        sed -n '2,29p' "$0"
+        sed -n '2,29p' "$0";
         exit 0
         ;;
     *)
@@ -354,7 +352,7 @@ done
 main() {
     set -euo pipefail # Exit on any error, unset variables, and failed pipes
     
-    print_status "INFO" "Running ${SCRIPT_NAME}"
+    print_status "Running ${SCRIPT_NAME}"
     echo ""
     echo ""
     print_status "🥳 Starting Terminal Setup! 🎉"
@@ -390,7 +388,7 @@ main() {
     verify_installs
 }
 
-# Only execute maine when run, not sourced
+# Only execute main when run, not sourced
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main "$@"
 fi
