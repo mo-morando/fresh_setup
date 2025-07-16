@@ -51,6 +51,7 @@ readonly NC=$'\033[0m'
 # ─────────────────────────────────── Globals ──────────────────────────────────
 SCRIPT_NAME="$(basename "$0")"
 readonly SCRIPT_NAME
+readonly RC_FILES="${HOME}/setup/mamba"
 readonly LOG_FILE="${HOME}/mamba_install.log"
 BACKUP_DIR="${HOME}/.miniforge_backup_$(date +%Y%m%d_%H%M%S)"
 readonly BACKUP_DIR
@@ -118,10 +119,11 @@ execute_or_dry_run() {
     shift
     if [[ $DRY_RUN == true ]]; then
         print_dry_run "$description"
-        print_detect "Would execute: $*"
+        # print_detect "Would execute: $*"
+        print_dry_run "Would execute: $(printf '%q ' "$@")"
     else
         print_info "$description"
-        "@"
+        "$@"
     fi
 }
 
@@ -371,7 +373,7 @@ initialize_shell() {
     # Initialize conda/mamba for the detected shell
     if [[ -x "$INSTALL_PATH/bin/mamba" ]]; then
         print_info "Initializing mamba for $shell_name..."
-        "$INSTALL_PATH/bin/mamba" shell init || print_warn "Shell initialization failed"
+        "$INSTALL_PATH/bin/mamba" shell init --shell "$shell_name" || print_warn "Shell initialization failed"
     else
         print_error "mamba binary not found at $INSTALL_PATH/bin/mamba"
         return 1
@@ -381,8 +383,10 @@ initialize_shell() {
 }
 
 copy_rc_files() {
-    print_info "Copying conda/mamba RC files from setup directory..."
-    execute_or_dry_run " " cp 
+    if [[ -x "$INSTALL_PATH/bin/conda" ]]; then
+        print_info "Copying conda/mamba RC files from setup directory..."
+        execute_or_dry_run " " cp "${RC_FILES}/.*" "${HOME}"
+    fi
 }
 
 verify_install() {
