@@ -280,7 +280,7 @@ determine_installer() {
 }
 
 download_installer() {
-    print_info "📥 Downloading Miniforge installer..."
+    print_info "📥 Downloading Miniforge installer: '$INSTALLER'..."
 
     if [[ -f "$INSTALLER" ]]; then
         print_warn "Installer already exists: $INSTALLER"
@@ -357,6 +357,7 @@ initialize_shell() {
     local shell_name
     shell_name=$(basename "$SHELL")
     print_info "Detected shell: $shell_name"
+    [[ $DRY_RUN == true ]] && { print_dry_run "Would initialize shell: $shell_name..."; return 0; }
     
     # Initialize conda/mamba for the detected shell
     if [[ -x "$INSTALL_PATH/bin/conda" ]]; then
@@ -378,7 +379,7 @@ verify_install() {
     # Check installation directory
     if [[ ! -d "$INSTALL_PATH" ]]; then
         print_error "Installation directory not found: $INSTALL_PATH"
-        ((issues++))
+        ((++issues))
     fi
 
     # Check for executables
@@ -396,7 +397,7 @@ verify_install() {
             fi
         else
             print_error "Executable not found or not executable: $exec_path"
-            ((issues++))
+            ((++issues))
         fi
     done
 
@@ -414,7 +415,7 @@ verify_install() {
         print_info "✅ Verification passed - installation successful!"
         return 0
     else
-        print_error "Verification failed with $issues issues"
+        print_warn "Verification failed with $issues issues"
         return 1
     fi
 }
@@ -465,6 +466,7 @@ main() {
 
     detect_system
     check_existing_installation
+    determine_installer
     download_installer
 
     if [[ $DRY_RUN == true ]]; then
@@ -477,7 +479,6 @@ main() {
 
     install_miniforge
     initialize_shell
-    verify_install
 
     if verify_install; then
         display_success_message
