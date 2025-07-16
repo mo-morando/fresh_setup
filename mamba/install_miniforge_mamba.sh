@@ -371,13 +371,18 @@ initialize_shell() {
     # Initialize conda/mamba for the detected shell
     if [[ -x "$INSTALL_PATH/bin/mamba" ]]; then
         print_info "Initializing mamba for $shell_name..."
-        "$INSTALL_PATH/bin/mamba" init "$shell_name" || print_warn "Shell initialization failed"
+        "$INSTALL_PATH/bin/mamba" shell init || print_warn "Shell initialization failed"
     else
         print_error "mamba binary not found at $INSTALL_PATH/bin/mamba"
         return 1
     fi
     
     print_info "✅ Shell initialization complete"
+}
+
+copy_rc_files() {
+    print_info "Copying conda/mamba RC files from setup directory..."
+    execute_or_dry_run " " cp 
 }
 
 verify_install() {
