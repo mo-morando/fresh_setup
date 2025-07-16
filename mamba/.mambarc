@@ -1,7 +1,14 @@
 channels:
   - conda-forge
+  - r
   - bioconda
-  - defaults
+  - nodefaults
+
+# Enforce strict channel priority for reproducibility
 channel_priority: strict
 show_channel_urls: true
 auto_activate_base: false
+
+solver: mamba
+
+parallel_downloads: 7

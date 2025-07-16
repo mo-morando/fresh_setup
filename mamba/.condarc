@@ -1,7 +1,28 @@
 channels:
   - conda-forge
+  - r
   - bioconda
-  - defaults
+  - nodefaults
+
+
+# Enforce strict channel priority for reproducibility
 channel_priority: strict
 show_channel_urls: true
+
+solver: libmamba
+
+# SSL and proxy settings for secure installs
+ssl_verify: true
+
 auto_activate_base: false
+report_errors: true
+env_prompt: '({name}) '
+
+# Enable experimental features for faster metadata formats
+experimental:
+  - jlap
+  - lock
+
+# Environment variables for R integration
+env_vars:
+  R_LIBS_USER: $CONDA_PREFIX/lib/R/library
