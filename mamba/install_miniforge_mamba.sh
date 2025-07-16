@@ -368,6 +368,15 @@ initialize_shell() {
         return 1
     fi
     
+    # Initialize conda/mamba for the detected shell
+    if [[ -x "$INSTALL_PATH/bin/mamba" ]]; then
+        print_info "Initializing mamba for $shell_name..."
+        "$INSTALL_PATH/bin/mamba" init "$shell_name" || print_warn "Shell initialization failed"
+    else
+        print_error "mamba binary not found at $INSTALL_PATH/bin/mamba"
+        return 1
+    fi
+    
     print_info "✅ Shell initialization complete"
 }
 
@@ -483,6 +492,7 @@ main() {
     if verify_install; then
         display_success_message
     else
+        [[ $DRY_RUN == true ]] && print_dry_run "DRY RUN MODE - Nothing was installed."
         error_exit 5 "Installation verification failed"
     fi
 
