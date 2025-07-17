@@ -447,15 +447,15 @@ while (("$#" > 0)); do
         shift 2
         ;;
     --no-init)
-        NO_INIT="$1"
+        NO_INIT=true
         shift 2
         ;;
     --keep-installer)
-        KEEP_INSTALLER="$1"
+        KEEP_INSTALLER=true
         shift 2
         ;;
     --force)
-        FORCE="$1"
+        FORCE=true
         shift 2
         ;;
     -h | --help)
