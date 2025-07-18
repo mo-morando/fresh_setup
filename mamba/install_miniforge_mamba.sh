@@ -51,7 +51,7 @@ readonly NC=$'\033[0m'
 # ─────────────────────────────────── Globals ──────────────────────────────────
 SCRIPT_NAME="$(basename "$0")"
 readonly SCRIPT_NAME
-readonly RC_FILES="${HOME}/setup/mamba"
+readonly RC_FILES="${HOME}/fresh_setup/mamba"
 readonly LOG_FILE="${HOME}/mamba_install.log"
 BACKUP_DIR="${HOME}/.miniforge_backup_$(date +%Y%m%d_%H%M%S)"
 readonly BACKUP_DIR
@@ -306,7 +306,7 @@ download_installer() {
     
     # Verify download
     if [[ ! -f "$INSTALLER" ]]; then
-        die 3 "Installer not found after download"
+        error_exit 3 "Installer not found after download"
     fi
 
     local file_size
@@ -338,7 +338,7 @@ install_miniforge() {
     if bash "$INSTALLER" -b -p "$INSTALL_PATH"; then
         print_info "✅ Installation completed"
     else
-        die 4 "Installation failed"
+        error_exit 4 "Installation failed"
     fi
     
     # Cleanup installer unless requested to keep
@@ -384,8 +384,16 @@ initialize_shell() {
 
 copy_rc_files() {
     if [[ -x "$INSTALL_PATH/bin/conda" ]]; then
-        print_info "Copying conda/mamba RC files from setup directory..."
-        execute_or_dry_run " " cp "${RC_FILES}/.*" "${HOME}"
+        print_info "Copying conda/mamba RC files from setup directory '$RC_FILES' to home '$HOME'..."
+
+        if [[ -d "$RC_FILES" ]]; then 
+        local find_cmd=(find "$RC_FILES" -maxdepth 1 -type f -name ".*" ! -name "." ! -name "..")
+
+        execute_or_dry_run "Copy RC files to $HOME" "${find_cmd[@]}" -exec cp -p {} "$HOME/" \;
+        else
+            print_warn "RC files directory not found: '$RC_FILES'"
+        fi
+
     fi
 }
 
@@ -433,7 +441,7 @@ verify_install() {
         print_info "✅ Verification passed - installation successful!"
         return 0
     else
-        print_warn "Verification failed with $issues issues"
+        print_warn "Verification failed with $issues issues. Please see log: $LOG_FILE"
         return 1
     fi
 }
@@ -497,6 +505,7 @@ main() {
 
     install_miniforge
     initialize_shell
+    copy_rc_files
 
     if verify_install; then
         display_success_message
