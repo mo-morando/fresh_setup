@@ -490,6 +490,7 @@ cleanup_environment() {
 
 verify_removal() {
     print_info "Verifying removal..."
+    [[ $DRY_RUN == true ]] && { print_dry_run "Would verify the uninstallation process worked..."; return 0; }
 
     local issues=0
 
@@ -622,7 +623,7 @@ main() {
     echo ""
 
     if [[ $DRY_RUN == true ]]; then
-        print_info "DRY RUN MODE - No changes will be made"
+        print_dry_run "DRY RUN MODE - No changes will be made"
     else
         if ! confirm "Do you want to proceed with the uninstall?"; then
             error_exit 2 "Uninstall cancelled by user"
@@ -644,7 +645,7 @@ main() {
     if verify_removal; then
         display_summary
     else
-        error_exit 4 "There was a problem with the uninstalling process. Please see log file."
+        error_exit 4 "There was a problem with the uninstalling process. Please see log file: $LOG_FILE."
     fi
 }
 
