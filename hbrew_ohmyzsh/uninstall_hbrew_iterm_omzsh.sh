@@ -7,6 +7,7 @@
 #   • Removes Powerlevel10k theme and fonts
 #   • Removes iTerm2 color schemes
 #   • Optionally removes Homebrew and all packages
+#     -This includes iTerm2
 #   • Restores original shell configuration
 #
 # Usage:
@@ -50,10 +51,14 @@ readonly LOG_FILE="${HOME}/terminal_uninstall.log"
 readonly BACKUP_DIR="${HOME}/.terminal_backup_$(date +%Y%m%d_%H%M%S)"
 
 # Paths (matching the original script)
+readonly Z_HOME="${HOME}/.oh-my-zsh"
 readonly COLOR_DIR="${HOME}/iterm2/colors"
 readonly FONT_DIR="${HOME}/Library/Fonts"
-readonly Z_CUST="${ZSH_CUSTOM:-${HOME}/.oh-my-zsh/custom}"
-readonly BREWFILE="${HOME}/setup/hbrew_ohmyzsh/Brewfile"
+readonly Z_CUST="${ZSH_CUSTOM:-${Z_HOME}/custom}"
+readonly PL10K_DIR="${Z_CUST}/themes/powerlevel10k"
+readonly PL10K_CONF="$HOME/.p10k.zsh"
+readonly ZSH_PLUGINS_DIR="${Z_CUST}/plugins/"
+readonly BREWFILE="${HOME}/fresh_setup/hbrew_ohmyzsh/Brewfile"
 
 # Flags
 DRY_RUN=false
@@ -95,9 +100,15 @@ print_warn()    { log "WARNING" "$1" "${YELLOW}"; }
 print_error()   { log "ERROR" "$1" "${RED}"; }
 print_dry_run() { log "DRY-RUN" "$1" "${BLUE}"; }
 
-die() { print_error "$2"; exit "${1:-1}"; }
+error_exit() { print_error "$2"; exit "${1:-1}"; }
 
 exists() { command -v "$1" &>/dev/null; }
+
+dir_exists() {
+    print_info "Checking if directory '${1}' exists..."
+    [[ -d "${1}" ]]
+    # TODO: Verbose?
+}
 
 confirm() {
     [[ $FORCE == true ]] && return 0
@@ -112,7 +123,7 @@ execute_or_dry_run() {
     shift
     if [[ $DRY_RUN == true ]]; then
         print_dry_run "$description"
-        print_dry_run "Would execute: $*"
+        print_dry_run "Would execute: $(printf '%q ' "$@")"
     else
         print_info "$description"
         "$@"
@@ -158,14 +169,24 @@ create_backup() {
 
 # ───────────────────────────── Uninstall Functions ────────────────────────────
 check_macos() {
-    [[ $OSTYPE == darwin* ]] || die 1 "This script only supports macOS."
+    [[ $OSTYPE == darwin* ]] || error_exit 1 "This script only supports macOS."
+}
+
+user_permission() {
+    if [[ $DRY_RUN == true ]]; then
+        print_info "DRY RUN MODE - No changes will be made"
+    else
+        if ! confirm "Do you want to proceed with the uninstall?"; then
+            error_exit 2 "Uninstall cancelled by user"
+        fi  
+    fi
 }
 
 remove_oh_my_zsh() {
-    print_info "Removing Oh My Zsh..."
+    print_info "Completely removing Oh My Zsh..."
     
     # Remove Oh My Zsh directory
-    safe_remove "$HOME/.oh-my-zsh" "Removing Oh My Zsh directory"
+    safe_remove "$Z_HOME" "Removing Oh My Zsh directory"
     
     # Remove Oh My Zsh from shell configuration
     for file in ~/.zshrc ~/.zprofile; do
@@ -189,10 +210,10 @@ remove_powerlevel10k() {
     print_info "Removing Powerlevel10k theme..."
     
     # Remove Powerlevel10k directory
-    safe_remove "${Z_CUST}/themes/powerlevel10k" "Removing Powerlevel10k theme directory"
+    safe_remove "${PL10K_DIR:-Z_CUST}/themes/powerlevel10k" "Removing Powerlevel10k theme directory"
     
     # Remove Powerlevel10k configuration
-    safe_remove "$HOME/.p10k.zsh" "Removing Powerlevel10k configuration"
+    safe_remove "${PL10K_CONF:-HOME/.p10k.zsh}" "Removing Powerlevel10k configuration"
     
     # Clean from shell configuration
     for file in ~/.zshrc ~/.zprofile; do
@@ -212,7 +233,7 @@ remove_zsh_plugins() {
     print_info "Removing Oh My Zsh plugins..."
     
     for plugin in "${ZSH_PLUGINS[@]}"; do
-        local plugin_dir="${Z_CUST}/plugins/${plugin}"
+        local plugin_dir="${ZSH_PLUGINS_DIR}${plugin}"
         safe_remove "$plugin_dir" "Removing plugin: $plugin"
     done
 }
@@ -327,6 +348,58 @@ cleanup_directories() {
     fi
 }
 
+verify_removal() {
+    print_info "Verifying everything was uninstalled properly"
+    [[ $DRY_RUN == true ]] && { print_dry_run "Would verify the uninstallation process worked..."; return 0; }
+
+    issues=0
+
+    dirs_array=(
+        COLOR_DIR
+        Z_HOME
+        PL10K_DIR
+        PL10K_CONF
+        ZSH_PLUGINS_DIR
+        "/Applications/iTerm.app"
+    )
+
+    for dir in "${dirs_array[@]}"; do
+        if dir_exists "$dir"; then
+            print_warn "Directory $dir still exists, Oh My ZSH is likely not uninstalled"
+            ((++issues))
+        fi
+    done
+
+    if exists brew; then
+        print_warn ""
+        ((++issues))
+    fi
+
+
+    if (( issues = 0 )); then
+        print_info "Verification passed - installation successful!"
+        return 0
+    else
+        print_warn "There were $issues number of issues. The uninstallation process failed. Please see log $LOG_FILE"
+        return 1
+    fi
+
+}
+
+start_message() {
+    # Show what will be removed
+    echo ""
+    print_warn "This script will remove:"
+    print_warn "• Oh My Zsh and all plugins"
+    print_warn "• Powerlevel10k theme"
+    print_warn "• homebrew and all the programs and applications it installed"
+    print_warn "• iTerm2 color schemes"
+    [[ $KEEP_FONTS == false ]] && print_warn "• Powerlevel10k fonts"
+    [[ $KEEP_HOMEBREW == false ]] && { print_warn "• Homebrew and all packages"; print_warn "• This includes iTerm2, VS Code, updated git, updated bash, and Spotify"; }
+    echo ""
+    
+}
+
 display_summary() {
     echo ""
     print_info "═══════════════════════════════════════════════════════════════"
@@ -344,16 +417,11 @@ display_summary() {
     print_warn "Manual steps you may need to complete:"
     cat <<EOF | tee -a "$LOG_FILE"
 
-1. iTerm2 Configuration:
-   - Reset iTerm2 font to system default
-   - Remove any imported color schemes manually
-   - Reset any custom iTerm2 preferences
-
-2. Shell Configuration:
+1. Shell Configuration:
    - Restart your terminal or run: exec zsh
    - You may need to manually clean any remaining configurations
 
-3. If you want to completely reset your terminal:
+2. If you want to completely reset your terminal:
    - Delete remaining config files: rm ~/.zshrc ~/.zprofile
    - Restart terminal to use system defaults
 
@@ -373,35 +441,20 @@ while [[ $# -gt 0 ]]; do
         --dry-run)       DRY_RUN=true; shift ;;
         --force)         FORCE=true; shift ;;
         -h|--help)       sed -n '2,34p' "$0"; exit 0 ;;
-        *)               die 1 "Unknown flag: $1" ;;
+        *)               error_exit 1 "Unknown flag: $1" ;;
     esac
 done
 
 # ────────────────────────────────── Main ─────────────────────────────────────
 main() {
+    print_info "Executing $SCRIPT_NAME"
     print_info "Starting terminal setup uninstall 🗑️"
     
     check_macos
     
-    # Show what will be removed
-    echo ""
-    print_warn "This script will remove:"
-    print_warn "• Oh My Zsh and all plugins"
-    print_warn "• Powerlevel10k theme"
-    print_warn "• iTerm2 color schemes"
-    [[ $KEEP_FONTS == false ]] && print_warn "• Powerlevel10k fonts"
-    [[ $KEEP_HOMEBREW == false ]] && print_warn "• Homebrew and all packages"
-    echo ""
-    
-    if [[ $DRY_RUN == true ]]; then
-        print_info "DRY RUN MODE - No changes will be made"
-    else
-        if ! confirm "Do you want to proceed with the uninstall?"; then
-            die 2 "Uninstall cancelled by user"
-        fi
-        
-        create_backup
-    fi
+    start_message
+    user_permission
+    create_backup
     
     # Execute uninstall steps
     remove_oh_my_zsh
@@ -413,7 +466,11 @@ main() {
     restore_shell
     cleanup_directories
     
-    display_summary
+    if verify_removal; then
+        display_summary
+    else
+        error_exit 5 ""
+    fi
 }
 
 # Only execute main when run directly, not when sourced
