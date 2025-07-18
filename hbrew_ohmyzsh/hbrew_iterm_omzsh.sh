@@ -43,7 +43,7 @@ readonly SCRIPT_NAME
 readonly LOG_FILE="${HOME}/terminal_setup.log"
 # readonly LOG_FILE="${HOME}/log/setup/terminal_setup.log"
 # Defaults – may be overridden via CLI flags
-readonly BREWFILE="${HOME}/setup/hbrew_ohmyzsh/Brewfile"
+readonly BREWFILE="${HOME}/fresh_setup/hbrew_ohmyzsh/Brewfile"
 readonly COLOR_DIR="${HOME}/iterm2/colors"
 readonly FONT_DIR="${HOME}/Library/Fonts"
 
