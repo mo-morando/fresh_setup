@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"terminal.integrated.fontFamily": "'MesloLGS NF'",
+		"editor.fontFamily": "Source Code Pro",
+		"cSpell.words": [
+			"hbrew",
+			"Meslo",
+			"Monokai",
+			"powerlevel"
+		]
+	}
+}
