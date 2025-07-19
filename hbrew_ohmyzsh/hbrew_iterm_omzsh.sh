@@ -221,9 +221,9 @@ install_addpath_hbrew() {
         retry 3 5 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || error_exit 2 "Homebrew download failed"
 
         # Add Homebrew to Path for Apple Silicon Macs
-        if [[ $(uname -m) == "arm64" && -x "${hb_bin}" ]]; then
             local hb_bin="${1:-/opt/homebrew/bin/brew}"
-            local zsh_custom_dir="${2:-${HOME}/.oh-my-zsh/custom}"
+            # local zsh_custom_dir="${2:-${HOME}/.oh-my-zsh/custom}"
+        if [[ $(uname -m) == "arm64" && -x "${hb_bin}" ]]; then
             eval "$(${hb_bin} shellenv)"
             grep -q "$hb_bin" ~/.zprofile 2>/dev/null || echo "eval \"\$({$hb_bin} shellenv)\"" >>~/.zprofile
         else
@@ -239,7 +239,7 @@ install_addpath_hbrew() {
 install_brewfile() {
     if [[ -f "$BREWFILE" ]]; then
         print_status "Installing files from Brewfile..."
-        #retry 3 10 brew bundle --file="$BREWFILE" || error_exit 3 "Brewfile installation failed"
+        retry 3 10 brew bundle --file="$BREWFILE" || error_exit 3 "Brewfile installation failed"
     else
         error_exit 4 "Brewfile not found at '$BREWFILE'. Brewfile required for full installation."
     fi
