@@ -146,13 +146,40 @@ safe_remove() {
 }
 
 # ───────────────────────────── Backup Functions ────────────────────────────
+dump_brewfile() {
+    [[ -z "$BACKUP_DIR" ]] && {
+        print_error "BACKUP_DIR is not set"
+        return 1
+    }
+    mkdir -p "$BACKUP_DIR" || {
+        print_error "Failed to create backup directory: $BACKUP_DIR"
+        return 1
+    }
+
+    local timestamp
+    timestamp=$(date +'%Y%m%d_%H%M%S')
+    local brewfile_path="$BACKUP_DIR/Brewfile.$timestamp"
+
+    execute_or_dry_run "Dumping current Homebrew state to $brewfile_path" brew bundle dump --file="$brewfile_path" --force || {
+        print_error "brew bundle dump failed"
+        return 1
+    }
+
+}
+
 create_backup() {
     [[ $DRY_RUN == true ]] && return 0
     
-    print_info "Creating backup at: $BACKUP_DIR"
-    mkdir -p "$BACKUP_DIR"
+    [[ -z "$BACKUP_DIR" ]] && {
+        print_error "BACKUP_DIR is not set"
+        return 1
+    }
+    mkdir -p "$BACKUP_DIR" || {
+        print_error "Failed to create backup directory: $BACKUP_DIR"
+        return 1
+    }
     
-    # Backup shell configuration files
+    print_info "Backup shell configuration files"
     for file in ~/.zshrc ~/.zprofile ~/.p10k.zsh; do
         if [[ -f "$file" ]]; then
             cp "$file" "$BACKUP_DIR/" 2>/dev/null || true
@@ -163,7 +190,10 @@ create_backup() {
     if [[ -d "$Z_CUST" ]]; then
         cp -r "$Z_CUST" "$BACKUP_DIR/oh-my-zsh-custom" 2>/dev/null || true
     fi
-    
+
+    # Backing up currently homebrew state
+    dump_brewfile
+
     print_info "Backup created successfully"
 }
 
