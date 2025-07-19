@@ -301,41 +301,54 @@ remove_homebrew() {
         return
     fi
     
-    print_info "Removing Homebrew packages and Homebrew itself..."
+    print_info "Starting full homebrew cleanup..."
+
+    # 1. Uninstall every formula (CLI tools)
+    execute_or_dry_run "Uninstalling all homebrew formulae..." \
+        brew remove --force "$(brew list --formula)" --ignore-dependencies || true
     
-    # Remove packages from Brewfile if it exists
+    execute_or_dry_run "Removing orphaned dependencies..." \
+        brew autoremove || true
+
+    # 2. Uninstall every cask (GUI apps) with --zap
+    execute_or_dry_run "Uninstalling all homebrew casks (apps) and removing their ancillary files..." \
+        brew uninstall --cask --force --zap "$(brew list --cask)" || true
+
+    # 3. Run Homebrew cleanup
+    execute_or_dry_run "Running brew cleanup to remove caches and old downloads..." \
+        brew cleanup || true
+    
+    # 4. Remove packages from Brewfile if it exists
     if [[ -f "$BREWFILE" ]]; then
-        if [[ $DRY_RUN == true ]]; then
-            print_dry_run "Would remove packages from Brewfile"
-        else
-            # This will remove all packages listed in the Brewfile
+        execute_or_dry_run "Cleaning up any Brewfile-managed entries..." \
             brew bundle cleanup --file="$BREWFILE" --force || true
-        fi
     fi
     
-    # Remove Homebrew itself
-    if [[ $DRY_RUN == true ]]; then
-        print_dry_run "Would remove Homebrew installation"
-    else
-        print_warn "Removing Homebrew - this will remove ALL homebrew packages!"
-        if confirm "Are you sure you want to remove Homebrew completely?"; then
+    # 5. Run the official uninstall script
+    # if [[ $DRY_RUN == true ]]; then
+    #     print_dry_run "Would remove Homebrew installation"
+    # else
+        print_warn "Removing Homebrew itself—this will delete homebrew directories!"
+        if confirm "Are you sure you want to remove homebrew completely?"; then
+            execute_or_dry_run "Running Homebrew uninstall script..." \
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)" || true
         else
             print_info "Homebrew removal cancelled"
         fi
-    fi
+    # fi
     
-    # Clean Homebrew from shell configuration
+    # 6. Clean Homebrew from shell configuration
     for file in ~/.zshrc ~/.zprofile; do
         if [[ -f "$file" ]]; then
             if [[ $DRY_RUN == true ]]; then
-                print_dry_run "Would clean Homebrew configuration from $file"
-            else
+                execute_or_dry_run "Cleaning homebrew configuration from $file" \
                 sed -i.bak '/eval.*homebrew.*shellenv/d' "$file" 2>/dev/null || true
-                print_info "Cleaned Homebrew configuration from $file"
+                # print_info "Cleaned Homebrew configuration from $file"
             fi
         fi
     done
+
+    print_info "✅ Full Homebrew cleanup complete. Please check /Applications for any leftover .app bundles and ~/Library for remaining support or preference files to delete manually."
 }
 
 restore_shell() {
