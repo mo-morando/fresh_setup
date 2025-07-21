@@ -305,14 +305,17 @@ remove_homebrew() {
 
     # 1. Uninstall every formula (CLI tools)
     execute_or_dry_run "Uninstalling all homebrew formulae..." \
-        brew remove --force "$(brew list --formula)" --ignore-dependencies || true
+        brew remove --force $(brew list --formula) --ignore-dependencies || true
     
     execute_or_dry_run "Removing orphaned dependencies..." \
         brew autoremove || true
 
     # 2. Uninstall every cask (GUI apps) with --zap
     execute_or_dry_run "Uninstalling all homebrew casks (apps) and removing their ancillary files..." \
-        brew uninstall --cask --force --zap "$(brew list --cask)" || true
+        brew uninstall --cask --force $(brew list --cask) || true
+    # 2. Uninstall every cask (GUI apps) with --zap
+    # execute_or_dry_run "Uninstalling all homebrew casks (apps) and removing their ancillary files..." \
+    #     brew uninstall --cask --force --zap $(brew list --cask) || true
 
     # 3. Run Homebrew cleanup
     execute_or_dry_run "Running brew cleanup to remove caches and old downloads..." \
