@@ -226,7 +226,7 @@ install_add_path_hbrew() {
             local hb_bin="${1:-/opt/homebrew/bin/brew}"
             # local zsh_custom_dir="${2:-${HOME}/.oh-my-zsh/custom}"
         if [[ $(uname -m) == "arm64" && -x "${hb_bin}" ]]; then
-            print "Adding homebrew to Path..."
+            print_status "Adding homebrew to Path..."
             eval "$(${hb_bin} shellenv)"
             grep -q "$hb_bin" ~/.zprofile 2>/dev/null || echo "eval \"\$(${hb_bin} shellenv)\"" >>~/.zprofile
         else
