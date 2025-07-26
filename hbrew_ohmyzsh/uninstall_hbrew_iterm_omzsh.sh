@@ -192,7 +192,12 @@ create_backup() {
     fi
 
     # Backing up currently homebrew state
-    dump_brewfile
+    if ! exists brew; then
+        print_info "Homebrew not found, skipping backup..."
+        return 0
+    else
+        dump_brewfile
+    fi
 
     print_info "Backup created successfully"
 }
