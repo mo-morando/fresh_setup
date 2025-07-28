@@ -5,6 +5,7 @@
 		}
 	],
 	"settings": {
+		"workbench.colorTheme":"Shades of Purple (Super Dark)",
 		"terminal.integrated.fontFamily": "'MesloLGS NF'",
 		"editor.fontFamily": "Source Code Pro",
 		"cSpell.words": [
