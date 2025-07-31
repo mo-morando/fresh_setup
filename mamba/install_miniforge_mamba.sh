@@ -55,6 +55,7 @@ readonly RC_FILES="${HOME}/fresh_setup/mamba"
 readonly LOG_FILE="${HOME}/mamba_install.log"
 BACKUP_DIR="${HOME}/.miniforge_backup_$(date +%Y%m%d_%H%M%S)"
 readonly BACKUP_DIR
+readonly ENVIRONMENTS_DIR="${HOME}/fresh_setup/environments"
 
 # Default configuration
 INSTALL_PATH="$HOME/miniforge3"
@@ -384,14 +385,26 @@ initialize_shell() {
 
 copy_rc_files() {
     if [[ -x "$INSTALL_PATH/bin/conda" ]]; then
-        print_info "Copying conda/mamba RC files from setup directory '$RC_FILES' to home '$HOME'..."
-
         if [[ -d "$RC_FILES" ]]; then 
         local find_cmd=(find "$RC_FILES" -maxdepth 1 -type f -name ".*" ! -name "." ! -name "..")
+        print_info "Copying conda/mamba RC files from setup directory '$RC_FILES' to home '$HOME'..."
 
         execute_or_dry_run "Copy RC files to $HOME" "${find_cmd[@]}" -exec cp -p {} "$HOME/" \;
         else
             print_warn "RC files directory not found: '$RC_FILES'"
+        fi
+
+    fi
+}
+
+copy_environments_dir(){
+    if [[ -x "${INSTALL_PATH}/bin/conda" ]]; then
+        if [[ -d "${ENVIRONMENTS_DIR}" ]]; then
+        print_info "Copying conda environments from '${ENVIRONMENTS_DIR}' to home directory '${HOME}'"
+
+        execute_or_dry_run "Copying conda environmental YAML files to home directory" cp -pr "${ENVIRONMENTS_DIR}" "${HOME}"
+        else
+            print_warn "Conda environment directory not found: '${ENVIRONMENTS_DIR}'"
         fi
 
     fi
@@ -506,6 +519,7 @@ main() {
     install_miniforge
     initialize_shell
     copy_rc_files
+    copy_environments_dir
 
     if verify_install; then
         display_success_message
