@@ -400,9 +400,13 @@ copy_rc_files() {
 copy_environments_dir(){
     if [[ -x "${INSTALL_PATH}/bin/conda" ]]; then
         if [[ -d "${ENVIRONMENTS_DIR}" ]]; then
-        print_info "Copying conda environments from '${ENVIRONMENTS_DIR}' to home directory '${HOME}'"
+            if [[ ! -d "${HOME}/environments" ]]; then
+                print_info "Copying conda environments from '${ENVIRONMENTS_DIR}' to home directory '${HOME}'"
 
-        execute_or_dry_run "Copying conda environmental YAML files to home directory" cp -pr "${ENVIRONMENTS_DIR}" "${HOME}"
+                execute_or_dry_run "Copying conda environmental YAML files to home directory" cp -pr "${ENVIRONMENTS_DIR}" "${HOME}"
+            else
+                print_warn "Conda environment directory already exists '${HOME}/environments'. Skipping copying directory over."
+            fi
         else
             print_warn "Conda environment directory not found: '${ENVIRONMENTS_DIR}'"
         fi
@@ -416,10 +420,15 @@ verify_install() {
     local issues=0
 
     # Check installation directory
-    if [[ ! -d "$INSTALL_PATH" ]]; then
-        print_error "Installation directory not found: $INSTALL_PATH"
-        ((++issues))
-    fi
+    dirs=("${HOME}/environments" "$INSTALL_PATH")
+    for d in "${dirs[@]}"; do
+        if [[ ! -d "$d" ]]; then
+            print_error "Installation directory not found: $d"
+            ((++issues))
+        else
+            print_info "Found directory: $d"
+        fi
+    done
 
     # Check for executables
     local executables=("conda" "mamba")
