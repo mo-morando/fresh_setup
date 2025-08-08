@@ -15,6 +15,7 @@ brew "nano"
 brew "parallel"
 brew "pinentry-mac"
 brew "pkgconf"
+brew "shfmt" # Needed for formatting shell scripts in VS Code
 brew "tldr"
 brew "tree"
 brew "wget"
