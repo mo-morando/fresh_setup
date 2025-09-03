@@ -74,6 +74,7 @@ readonly COLOR_SCHEMES=(
     Monokai%20Pro%20Spectrum
     Firefly%20Traditional
     CyberpunkScarletProtocol
+    shades-of-purple
 )
 
 # ────────────────────────────── Helper functions ─────────────────────────────
