@@ -32,7 +32,7 @@ A repository automating the fresh setup of a new macOS computer or the refresh o
       - [CLI Options for script](#cli-options-for-script)
       - [Conda Environments (`environments/`)](#conda-environments-environments)
       - [R Base Environment (`environments/R/base/`)](#r-base-environment-environmentsrbase)
-      - [Genomics Environments (`environments/genomics/bioconductor/`)](#genomics-environments-environmentsgenomicsbioconductor)
+      - [Genomics Environments (`environments/genomics/`)](#genomics-environments-environmentsgenomics)
       - [Workflow Environment (`environments/snakemake/`)](#workflow-environment-environmentssnakemake)
     - [Complete Uninstaller of Anaconda related instances](#complete-uninstaller-of-anaconda-related-instances)
       - [Advanced uninstaller that removes](#advanced-uninstaller-that-removes)
@@ -292,7 +292,7 @@ dependencies:
   - snakemake         # Workflow management
 ```
 
-#### Genomics Environments (`environments/genomics/bioconductor/`)
+#### Genomics Environments (`environments/genomics/`)
 
 - **Advanced Bioconductor**: Specialized bioinformatics packages
 - **Data Analysis Genomics**: Genomics-focused tools
