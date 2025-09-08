@@ -1,3 +1,8 @@
 
 # VSCode files
-# *.code-workspace
+*.code-workspace
+.vscode
+
+# R files
+# .Rprofile
+# .lintr
