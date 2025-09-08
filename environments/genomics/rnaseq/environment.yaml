@@ -1,0 +1,64 @@
+name: rnaseq_workflow
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  # Core R
+  - r-base
+
+  # General R essentials and Bioconductor package installer
+  - r-essentials
+  - bioconductor-biocmanager
+
+  # QC and preprocessing
+  - fastqc
+  - multiqc
+  - trim-galore
+
+  # Alignment/Quantification tools (choose what matches your workflow)
+  - salmon
+  - kallisto
+  - star
+  - samtools
+
+  # Core RNA-seq analysis Bioconductor packages
+  - bioconductor-deseq2
+  - bioconductor-edger
+  - bioconductor-limma
+  - bioconductor-rsubread
+  - bioconductor-tximport
+  - bioconductor-genomicalignments
+
+  # Annotation for human/mouse/fly etc. (pick the relevant ones for your data)
+  - bioconductor-org.hs.eg.db
+  - bioconductor-org.mm.eg.db
+  - bioconductor-org.dm.eg.db
+  - bioconductor-txdb.dmelanogaster.ucsc.dm3.ensgene
+  - bioconductor-annotationdbi
+  - bioconductor-genomicfeatures
+
+  # Functional enrichment & pathway analysis (optional but recommended)
+  - bioconductor-clusterprofiler
+  - bioconductor-enrichplot
+
+  # Visualization
+  - r-ggplot2
+  - r-pheatmap
+  - bioconductor-glimma
+
+  # Helper R packages
+  - r-dplyr
+  - r-tidyr
+  - r-readr
+
+  # Reporting
+  - r-knitr
+  - r-rmarkdown
+
+  # Common system & R dependencies
+  - libxml2
+  - libcurl
+  - openssl
+  - pandoc
+  - make
